@@ -1,7 +1,8 @@
-# Grommet full project
+# BusMap
 
-This project has an todo list with a dashboard that illustrates basic usage
-of grommet.
+A live map showing the location of London buses. Consumes data from the TFL api.
+
+Technology: React, Redux, Leaflet, Signalr
 
 To run this application, execute the following commands:
 
@@ -17,7 +18,7 @@ To run this application, execute the following commands:
     $ gulp dev
     ```
 
-  3. Create the app distribution to be used by the back-end server
+  3. Create the app distribution to be used by the production server
 
     ```
     $ gulp dist
