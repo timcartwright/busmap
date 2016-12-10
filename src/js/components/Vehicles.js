@@ -139,7 +139,7 @@ class Vehicles extends Component {
 
     renderVehicle(vehicle) {
         const myIcon = Leaflet.icon({
-            iconUrl: '../../img/bus-icon.png',
+            iconUrl: './img/bus-icon.png',
             iconSize: [40,40]
         });
 
