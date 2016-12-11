@@ -144,7 +144,7 @@ class Vehicles extends Component {
 
     renderVehicle(vehicle) {
         const myIcon = Leaflet.icon({
-            iconUrl: '/img/bus-icon.png',
+            iconUrl: '/busmap/img/bus-icon.png',
             iconSize: [40,40]
         });
         if (!vehicle.stationStopPoint) return;
