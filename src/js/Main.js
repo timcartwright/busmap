@@ -12,11 +12,12 @@ import BusMap from './components/BusMap';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {setConfig, fetchRoute, fetchArrivals, setVehicles} from './actions/index';
+import {setConfig, fetchRoute, fetchArrivals, fetchLines, setVehicles} from './actions/index';
 
 class Main extends Component {
 
     componentWillMount() {
+        this.props.fetchLines();
         this.props.setConfig();
     }
 
@@ -33,6 +34,7 @@ class Main extends Component {
     }
 
     render () {
+        if (this.props.lines === []) return <div>Waiting for data</div>;
         return (
             <App centered={false}>
                 <Box full={true}>
@@ -44,7 +46,7 @@ class Main extends Component {
                         </Title>
                         <Select placeHolder='Search'
                                 inline={false}
-                                options={['20', '275', 'w16', 'w12', '179']}
+                                options={this.props.lines.map(line => line.id)}
                                 value={this.props.config.line}
                                 onChange={this.selectHandler.bind(this)} />
                     </Header>
@@ -66,11 +68,11 @@ class Main extends Component {
 };
 
 const mapDispatchToProps = (dispatch) => (
-   bindActionCreators({setConfig, fetchRoute, fetchArrivals, setVehicles}, dispatch)
+   bindActionCreators({setConfig, fetchRoute, fetchArrivals, fetchLines, setVehicles}, dispatch)
 );
 
-const mapStateToProps = ({config}) => (
-    {config}
+const mapStateToProps = ({config, lines}) => (
+    {config, lines}
 );
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

@@ -30,25 +30,38 @@ class Vehicles extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        console.log(nextProps, this.props);
         if (nextProps.config !== this.props.config) {
+            console.log('subscribeToLiveData');
             this.subscribeToLiveData(nextProps.config.line);
         }
+         
+        if (nextProps.route.lineId !== nextProps.config.line) return;
         if (nextProps.arrivals !== this.props.arrivals) {
+            console.log('Set vehicle state');
             this.setVehiclesState(nextProps.arrivals, true);
         }
     }
 
     setVehiclesState(arrivals, flushData=false) {
         let cannotFetchArrivalsBefore = this.state.cannotFetchArrivalsBefore;
+
+        if (arrivals === []  && moment().isAfter(cannotFetchArrivalsBefore)) {
+            this.props.fetchArrivals(this.props.config);
+            return;
+        }
+
         let vehicles = flushData ? {} : this.props.vehicles;
         let stateChangePending = false;
         
         arrivals.forEach(arrival => {
             try {
-                let vehicle = arrival.vehicleId = arrival.vehicleId || arrival.VehicleId;
+                let vehicle = {};
+                vehicle = arrival.vehicleId = arrival.vehicleId || arrival.VehicleId;
                 arrival.timeToStation = arrival.timeToStation || arrival.TimeToStation;
                 arrival.direction = arrival.direction || arrival.Direction;
                 arrival.lineId = arrival.lineId || arrival.LineId;
+                arrival.naptanId = arrival.naptanId || arrival.NaptanId;
                 if (
                     (   
                         !vehicles[vehicle] ||
@@ -109,15 +122,15 @@ class Vehicles extends Component {
 
     processArrivalData(arrival) {
         console.log('processArrivalData');
-        let naptanId = arrival.NaptanId || arrival.naptanId;
+        console.log(arrival.naptanId);
         return {
             vehicleId: arrival.vehicleId,
-            naptanId: naptanId,
+            naptanId: arrival.naptanId,
             timeToStation: arrival.timeToStation,
             bearing: arrival.Bearing || arrival.bearing,
             expectedArrival: arrival.expectedArrival || arrival.ExpectedArrival,
             timeToLive: arrival.timeToLive || arrival.TimeToLive,
-            stationStopPoint: this.getStopPoint(naptanId)
+            stationStopPoint: this.getStopPoint(arrival.naptanId)
         };
     }
     
@@ -162,7 +175,6 @@ class Vehicles extends Component {
     }
 
     render() {
-        if (!this.props.arrivals || this.props.arrivals.length === 0 || this.props.vehicles === {}) return <div>Waiting for data</div>;
         return (
             <div>
                 {this.renderVehicles()}
