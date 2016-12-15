@@ -53,7 +53,7 @@ class Main extends Component {
         return (
             <App centered={false}>
                 <Split fixed={false}
-                    flex="right">
+                    flex="right" onResponsive={columns => console.log(columns)}>
                     <Sidebar colorIndex="neutral-1" size="small">
                         <Header pad="small" direction="column" align="start">
                             <Title>
