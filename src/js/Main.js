@@ -73,7 +73,7 @@ class Main extends Component {
                                         inline={false}
                                         options={this.props.lines.map(line => line.id)}
                                         value={this.props.config.line}
-                                        onChange={this.handleLineChange.bind(this)} />
+                                        onChange={::this.handleLineChange} />
                                 <Heading tag="h2">
                                     Direction
                                 </Heading>  
@@ -83,13 +83,13 @@ class Main extends Component {
                                         label="Inbound"
                                         value="inbound"
                                         checked={this.props.config.direction === 'inbound'}
-                                        onChange={this.handleDirectionChange.bind(this)} />
+                                        onChange={::this.handleDirectionChange} />
                                     <RadioButton id="outbound"
                                         name="outbound"
                                         label="Outbound"
                                         value="outbound"
                                         checked={this.props.config.direction === 'outbound'}
-                                        onChange={this.handleDirectionChange.bind(this)} />
+                                        onChange={::this.handleDirectionChange} />
                                 </FormField>
                             </Form>
                         </Box>

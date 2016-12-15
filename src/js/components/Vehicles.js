@@ -98,31 +98,33 @@ class Vehicles extends Component {
     }
 
     subscribeToLiveData(line) {
+        const self = this;
         const TFL_SIGNALR_API = "https://push-api.tfl.gov.uk/signalr/hubs/signalr";
         const connection = $.hubConnection(TFL_SIGNALR_API);
         const predictionsRoomHubProxy = connection.createHubProxy('predictionsRoomHub');
-        predictionsRoomHubProxy.on('showPredictions', this.setVehiclesState.bind(this));
 
         // attempt connection, and handle errors
         connection.start()
-            .done(selectLineRooms.bind(this))
+            .done(function() {
+                self.selectLineRooms(predictionsRoomHubProxy);
+                predictionsRoomHubProxy.on('showPredictions', ::self.setVehiclesState);
+            })
             .fail(function() {
                 console.log('Could not connect');
             });
+    };
 
-        function selectLineRooms() {
-            console.log('Now connected, connection ID=' + connection.id);
-            var lineRooms = [{ "LineId": this.props.config.line }];
-            predictionsRoomHubProxy.invoke('addLineRooms',lineRooms)
-                .done(function () {
-                    console.log("tfl.predictions: Invocation of addLineRooms succeeded");
-                    return;
-                })
-                .fail(function (error) {
-                    console.log("tfl.predictions: Invocation of addLineRooms failed. Error: " + error);
-                    return;
-                });
-        };
+    selectLineRooms(predictionsRoomHubProxy) {
+        let lineRooms = [{ "LineId": this.props.config.line }];
+        predictionsRoomHubProxy.invoke('addLineRooms', lineRooms)
+            .done(function () {
+                console.log("tfl.predictions: Invocation of addLineRooms succeeded");
+                return;
+            })
+            .fail(function (error) {
+                console.log("tfl.predictions: Invocation of addLineRooms failed. Error: " + error);
+                return;
+            });
     };
 
     processArrivalData(arrival) {
