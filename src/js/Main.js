@@ -30,17 +30,26 @@ class Main extends Component {
         this.props.setConfig();
     }
 
-    selectHandler(event) {
-        let line = event.value;
-        let config = {
-            line: line,
-            direction: 'inbound'
-        };
-        this.props.setVehicles({});
-        this.props.setConfig(config);
-        this.props.fetchRoute(config);
-        this.props.fetchArrivals(config);
+    handleLineChange(event) {
+        this.setProps({
+            line: event.value,
+            direction: this.props.config.direction
+        });
     }
+
+    handleDirectionChange(event) {
+        this.setProps({
+            line: this.props.config.line,
+            direction: event.target.value
+        });
+    }
+
+   setProps(config) {
+       this.props.setVehicles({});
+       this.props.setConfig(config);
+       this.props.fetchRoute(config);
+       this.props.fetchArrivals(config);
+   }
 
     render () {
         if (this.props.lines === []) return <div>Waiting for data</div>;
@@ -60,30 +69,31 @@ class Main extends Component {
                         <Box flex="grow"
                             justify="start">
                             <Form pad="small">
-                                
                                 <Heading tag="h2">
                                     Bus Number
                                 </Heading>
-                                <FormFields>
-                                    <Select placeHolder='Search'
-                                            inline={false}
-                                            options={this.props.lines.map(line => line.id)}
-                                            value={this.props.config.line}
-                                            onChange={this.selectHandler.bind(this)} />
-                                    <Heading tag="h2">
-                                        Direction
-                                    </Heading>  
-                                    <FormField>
-                                        <RadioButton id="inbound"
-                                            name="inbound"
-                                            label="Inbound"
-                                            checked={true} />
-                                        <RadioButton id="outbound"
-                                            name="outbound"
-                                            label="Outbound"
-                                            checked={false} />
-                                    </FormField>
-                                </FormFields>
+                                <Select placeHolder='Search'
+                                        inline={false}
+                                        options={this.props.lines.map(line => line.id)}
+                                        value={this.props.config.line}
+                                        onChange={this.handleLineChange.bind(this)} />
+                                <Heading tag="h2">
+                                    Direction
+                                </Heading>  
+                                <FormField>
+                                    <RadioButton id="inbound"
+                                        name="inbound"
+                                        label="Inbound"
+                                        value="inbound"
+                                        checked={this.props.config.direction === 'inbound'}
+                                        onChange={this.handleDirectionChange.bind(this)} />
+                                    <RadioButton id="outbound"
+                                        name="outbound"
+                                        label="Outbound"
+                                        value="outbound"
+                                        checked={this.props.config.direction === 'outbound'}
+                                        onChange={this.handleDirectionChange.bind(this)} />
+                                </FormField>
                             </Form>
                         </Box>
                         <Footer pad="medium" direction="column" align="start">
