@@ -10,19 +10,19 @@ import Leaflet from 'leaflet';
 import $ from 'jquery';
 window.jQuery = $;
 require('ms-signalr-client');
-//
+
 class Vehicles extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            cannotFetchArrivalsBefore: null
+            cannotFetchArrivalsBefore: moment()
         };
     }
 
-    componentWillMount() {
-        this.setState({cannotFetchArrivalsBefore: moment().add(10, 'seconds')});
-    }
+    // componentWillMount() {
+    //     this.setState({cannotFetchArrivalsBefore: moment().add(10, 'seconds')});
+    // }
 
     componentDidMount() {
         this.setVehiclesState(this.props.arrivals, true);
@@ -30,22 +30,23 @@ class Vehicles extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps, this.props);
+        if (nextProps.route.lineId !== nextProps.config.line) return;
+
         if (nextProps.config !== this.props.config) {
             console.log('subscribeToLiveData');
             this.subscribeToLiveData(nextProps.config.line);
         }
          
-        if (nextProps.route.lineId !== nextProps.config.line) return;
         if (nextProps.arrivals !== this.props.arrivals) {
             console.log('Set vehicle state');
             this.setVehiclesState(nextProps.arrivals, true);
         }
     }
 
-    fetchArrivals() {
-        if (moment().isAfter(this.state.cannotFetchArrivalsBefore)) {
+    fetchArrivals(immediately) {
+        if (immediately || moment().isAfter(this.state.cannotFetchArrivalsBefore)) {
             this.props.fetchArrivals(this.props.config);
+            this.setState({cannotFetchArrivalsBefore: moment().add(10, 'seconds')});
         }
     }
 
@@ -58,7 +59,7 @@ class Vehicles extends Component {
         let vehicles = flushData ? {} : this.props.vehicles;
         let stateChangePending = false;
         
-        arrivals.forEach(arrival => {
+        arrivals.some(arrival => {
             try {
                 let vehicle = {};
                 vehicle = arrival.vehicleId = arrival.vehicleId || arrival.VehicleId;
@@ -79,37 +80,35 @@ class Vehicles extends Component {
                     vehicles[vehicle] = this.processArrivalData(arrival);
                     stateChangePending = true;
                 } else if (
-                    vehicles[vehicle] && moment().isAfter(moment(vehicles[vehicle].timeToLive)) && moment().isAfter(cannotFetchArrivalsBefore)
+                    vehicles[vehicle] && moment().isAfter(moment(vehicles[vehicle].timeToLive))
                 ) {
-                    this.setState({cannotFetchArrivalsBefore: moment().add(10, 'seconds')});
-                    this.props.fetchArrivals(this.props.config);
+                    this.fetchArrivals();
+                    return true;
                 }
             } catch(err) {
                 console.log(err.name, err.message);
-                this.fetchArrivals();
+                this.fetchArrivals(true);
+                return true;
             } 
         });
 
         if (stateChangePending) {
             this.props.setVehicles(vehicles);
         } 
-
-        return true;
     }
 
     subscribeToLiveData(line) {
-        const self = this;
         const TFL_SIGNALR_API = "https://push-api.tfl.gov.uk/signalr/hubs/signalr";
         const connection = $.hubConnection(TFL_SIGNALR_API);
         const predictionsRoomHubProxy = connection.createHubProxy('predictionsRoomHub');
 
         // attempt connection, and handle errors
         connection.start()
-            .done(function() {
-                self.selectLineRooms(predictionsRoomHubProxy);
-                predictionsRoomHubProxy.on('showPredictions', ::self.setVehiclesState);
+            .done(() => {
+                this.selectLineRooms(predictionsRoomHubProxy);
+                predictionsRoomHubProxy.on('showPredictions', ::this.setVehiclesState);
             })
-            .fail(function() {
+            .fail(() => {
                 console.log('Could not connect');
             });
     };
