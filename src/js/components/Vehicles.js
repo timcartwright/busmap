@@ -43,11 +43,15 @@ class Vehicles extends Component {
         }
     }
 
-    setVehiclesState(arrivals, flushData=false) {
-        let cannotFetchArrivalsBefore = this.state.cannotFetchArrivalsBefore;
-
-        if (arrivals === []  && moment().isAfter(cannotFetchArrivalsBefore)) {
+    fetchArrivals() {
+        if (moment().isAfter(this.state.cannotFetchArrivalsBefore)) {
             this.props.fetchArrivals(this.props.config);
+        }
+    }
+
+    setVehiclesState(arrivals, flushData=false) {
+        if (arrivals === []) {
+            this.fetchArrivals();
             return;
         }
 
@@ -82,6 +86,7 @@ class Vehicles extends Component {
                 }
             } catch(err) {
                 console.log(err.name, err.message);
+                this.fetchArrivals();
             } 
         });
 

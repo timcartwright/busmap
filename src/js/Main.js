@@ -58,7 +58,7 @@ class Main extends Component {
                 <Split fixed={false}
                     flex="right">
                     <Sidebar colorIndex="neutral-1" size="small">
-                        <Header pad="medium" direction="column" align="start">
+                        <Header pad="small" direction="column" align="start">
                             <Title>
                                 BusMapper
                             </Title>
@@ -96,7 +96,7 @@ class Main extends Component {
                                 </FormField>
                             </Form>
                         </Box>
-                        <Footer pad="medium" direction="column" align="start">
+                        <Footer pad="small" direction="column" align="start">
                             <Paragraph size="medium">
                                 BusMapper is a live bus map that uses data from the TFL API to estimate the location and movement of London buses.
                             </Paragraph>
