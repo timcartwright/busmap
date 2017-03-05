@@ -29,3 +29,24 @@
         display: none;
     }
 }
+
+.controls--open {
+    .grommetux-split__column--hidden {
+        @media screen and (max-width:719px) {
+            display: flex;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+        }
+    }
+}
+
+@media screen and (max-width: 44.9375em) {
+    .grommetux-box--pad-small,
+    .grommetux-form--pad-small {
+        padding: 12px;
+    }
+}
