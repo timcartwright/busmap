@@ -13,7 +13,9 @@ import Paragraph from 'grommet/components/Paragraph';
 import FormField from 'grommet/components/FormField';
 import Form from 'grommet/components/Form';
 import RadioButton from 'grommet/components/RadioButton';
-import Select from 'grommet/components/Select';
+import TextInput from 'grommet/components/TextInput';
+import Button from 'grommet/components/Button';
+import Play from 'grommet/components/icons/base/PlayFill';
 
 import BusMap from './components/BusMap';
 
@@ -23,23 +25,46 @@ import {setConfig, fetchRoute, fetchArrivals, fetchLines, setVehicles} from './a
 
 class Main extends Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            line: '179'
+        };
+    }
+
     componentWillMount() {
         this.props.fetchLines();
         this.props.setConfig();
     }
 
     handleLineChange(event) {
-        this.setProps({
-            line: event.value,
-            direction: this.props.config.direction
-        });
+        event.preventDefault();
+        let line = event.target.value;
+        this.setState({line});
+
+        // if (event.keyCode == 13) {
+        //     this.submitLine();     
+        // }
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        this.submitLine();
+    }
+
+    submitLine(direction=this.props.config.direction) {
+        let lines = this.props.lines.map(line => line.id);
+        if (lines.includes(this.state.line)) {
+            this.setProps({
+                line: this.state.line,
+                direction
+            });
+        }
     }
 
     handleDirectionChange(event) {
-        this.setProps({
-            line: this.props.config.line,
-            direction: event.target.value
-        });
+        this.submitLine(event.target.value);
     }
 
     setProps(config) {
@@ -64,17 +89,19 @@ class Main extends Component {
                                 Live London Bus Map
                             </Heading>
                         </Header>
-                        <Box flex="grow"
-                            justify="start">
-                            <Form pad="small">
+                        <Box    flex="grow"
+                                justify="start">
+                            <Form   pad="small"
+                                    onSubmit={::this.handleSubmit}>
                                 <Heading tag="h2">
                                     Bus Number
                                 </Heading>
-                                <Select placeHolder='Search'
-                                        inline={false}
-                                        options={this.props.lines.map(line => line.id)}
-                                        value={this.props.config.line}
-                                        onChange={::this.handleLineChange} />
+                                <TextInput
+                                        className="line-input"
+                                        value={this.state.line}
+                                        onDOMChange={::this.handleLineChange} />
+                                <Button icon={<Play />}
+                                        onClick={::this.handleSubmit} />
                                 <Heading tag="h2">
                                     Direction
                                 </Heading>  
