@@ -30,7 +30,7 @@ class Main extends Component {
 
         this.state = {
             line: '179'
-        }
+        };
     }
 
     componentWillMount() {
