@@ -28,15 +28,15 @@ document.body.classList.remove('loading');
 
 // Hot Module Replacement API
 if (module.hot) {
-  module.hot.accept('./Main', () => {
-    const NextApp = require('./Main').default;
-    ReactDOM.render(
-      <Provider store={store}>
-        <AppContainer>
-          <NextApp/>
-        </AppContainer>
-      </Provider>,
-      element
-    );
-  });
+    module.hot.accept('./Main', () => {
+        const NextApp = require('./Main').default;
+        ReactDOM.render(
+            <Provider store={store}>
+                <AppContainer>
+                    <NextApp/>
+                </AppContainer>
+            </Provider>,
+            element
+        );
+    });
 }
