@@ -7,47 +7,40 @@ import moment from 'moment';
 import SlidingMarker from './SlidingMarker';
 import Leaflet from 'leaflet';
 
-import $ from 'jquery';
-window.jQuery = $;
-require('ms-signalr-client');
+let timeout;
 
 class Vehicles extends Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            cannotFetchArrivalsBefore: moment()
-        };
     }
-
-    // componentWillMount() {
-    //     this.setState({cannotFetchArrivalsBefore: moment().add(10, 'seconds')});
-    // }
 
     componentDidMount() {
         this.setVehiclesState(this.props.arrivals, true);
-        this.subscribeToLiveData(this.props.config.line);
+
+        timeout = setInterval(() => {
+            this.fetchArrivals();
+        }, 10000);
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.route.lineId !== nextProps.config.line) return;
 
         if (nextProps.config !== this.props.config) {
-            console.log('subscribeToLiveData');
-            this.subscribeToLiveData(nextProps.config.line);
+            if (timeout) {
+                clearInterval(timeout);
+            }
+            timeout = setInterval(() => {
+                this.fetchArrivals();
+            }, 10000);
         }
          
         if (nextProps.arrivals !== this.props.arrivals) {
-            console.log('Set vehicle state');
             this.setVehiclesState(nextProps.arrivals, true);
         }
     }
 
-    fetchArrivals(immediately) {
-        if (immediately || moment().isAfter(this.state.cannotFetchArrivalsBefore)) {
-            this.props.fetchArrivals(this.props.config);
-            this.setState({cannotFetchArrivalsBefore: moment().add(10, 'seconds')});
-        }
+    fetchArrivals() {
+        this.props.fetchArrivals(this.props.config);
     }
 
     setVehiclesState(arrivals, flushData=false) {
@@ -97,38 +90,7 @@ class Vehicles extends Component {
         } 
     }
 
-    subscribeToLiveData(line) {
-        const TFL_SIGNALR_API = "https://push-api.tfl.gov.uk/signalr/hubs/signalr";
-        const connection = $.hubConnection(TFL_SIGNALR_API);
-        const predictionsRoomHubProxy = connection.createHubProxy('predictionsRoomHub');
-
-        // attempt connection, and handle errors
-        connection.start()
-            .done(() => {
-                this.selectLineRooms(predictionsRoomHubProxy);
-                predictionsRoomHubProxy.on('showPredictions', ::this.setVehiclesState);
-            })
-            .fail(() => {
-                console.log('Could not connect');
-            });
-    };
-
-    selectLineRooms(predictionsRoomHubProxy) {
-        let lineRooms = [{ "LineId": this.props.config.line }];
-        predictionsRoomHubProxy.invoke('addLineRooms', lineRooms)
-            .done(function () {
-                console.log("tfl.predictions: Invocation of addLineRooms succeeded");
-                return;
-            })
-            .fail(function (error) {
-                console.log("tfl.predictions: Invocation of addLineRooms failed. Error: " + error);
-                return;
-            });
-    };
-
     processArrivalData(arrival) {
-        console.log('processArrivalData');
-        console.log(arrival.naptanId);
         return {
             vehicleId: arrival.vehicleId,
             naptanId: arrival.naptanId,

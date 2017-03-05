@@ -43,7 +43,8 @@ class Main extends Component {
     }
 
     setProps(config) {
-        this.props.setVehicles({});this.props.setConfig(config);
+        this.props.setVehicles({});
+        this.props.setConfig(config);
         this.props.fetchRoute(config);
         this.props.fetchArrivals(config);
     }
