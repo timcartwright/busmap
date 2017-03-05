@@ -18,3 +18,14 @@
     margin-right: 12px;
     width: calc(100% - 60px);
 }
+
+.button__menu {
+    bottom: 12px;
+    left: 12px;
+    position: fixed;
+    z-index: 999;
+
+    @media screen and (min-width:720px) {
+        display: none;
+    }
+}

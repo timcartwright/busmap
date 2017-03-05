@@ -16,6 +16,7 @@ import RadioButton from 'grommet/components/RadioButton';
 import TextInput from 'grommet/components/TextInput';
 import Button from 'grommet/components/Button';
 import Play from 'grommet/components/icons/base/PlayFill';
+import Update from 'grommet/components/icons/base/Update';
 
 import BusMap from './components/BusMap';
 
@@ -29,7 +30,8 @@ class Main extends Component {
         super(props);
 
         this.state = {
-            line: '179'
+            line: '179',
+            controlsAreOpen: true
         };
     }
 
@@ -38,14 +40,14 @@ class Main extends Component {
         this.props.setConfig();
     }
 
+    openControls() {
+        this.setState({controlsAreOpen: true});
+    }
+
     handleLineChange(event) {
         event.preventDefault();
         let line = event.target.value;
         this.setState({line});
-
-        // if (event.keyCode == 13) {
-        //     this.submitLine();     
-        // }
     }
 
     handleSubmit(event) {
@@ -61,6 +63,7 @@ class Main extends Component {
                 direction
             });
         }
+        this.setState({controlsAreOpen: false});
     }
 
     handleDirectionChange(event) {
@@ -79,7 +82,9 @@ class Main extends Component {
         return (
             <App centered={false}>
                 <Split fixed={false}
-                    flex="right" onResponsive={columns => console.log(columns)}>
+                    flex="right"
+                    priority={this.state.controlsAreOpen ? 'left' : 'right'} 
+                    onResponsive={columns => console.log(columns)}>
                     <Sidebar colorIndex="neutral-1" size="small">
                         <Header pad="small" direction="column" align="start">
                             <Title>
@@ -136,6 +141,10 @@ class Main extends Component {
                         justify="center"
                         align="center">
                         <BusMap />
+                        <Button className="button__menu"
+                                icon={<Update />}
+                                primary={true}
+                                onClick={::this.openControls} />
                     </Box>
                 </Split>
           </App>
